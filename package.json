@@ -7,6 +7,7 @@
   "scripts": {
     "test": "node --test",
     "validate": "node --test",
-    "shadowhorse": "node ./src/cli.js"
+    "shadowhorse": "node ./src/cli.js",
+    "demo:workflow": "node ./scripts/demo-workflow.mjs"
   }
 }

@@ -1,0 +1,5 @@
+[
+  { "evaluation": { "allowed": true, "requiresHumanApproval": false } },
+  { "evaluation": { "allowed": false, "requiresHumanApproval": true } },
+  { "evaluation": { "allowed": true, "requiresHumanApproval": true } }
+]

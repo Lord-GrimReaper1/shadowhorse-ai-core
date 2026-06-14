@@ -1,0 +1,10 @@
+{
+  "evaluation": {
+    "allowed": true,
+    "requiresHumanApproval": false
+  },
+  "overridden": false,
+  "escalated": false,
+  "shouldEscalate": false,
+  "turnaroundMs": 920
+}

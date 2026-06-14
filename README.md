@@ -39,3 +39,17 @@ node ./src/cli.js report eval ./data/demo/evals.sample.json
 
 Detailed steps are in [docs/policy/WORKFLOW_DEMO.md](docs/policy/WORKFLOW_DEMO.md).
 
+## Weekly Metrics
+
+Log a pilot run record:
+
+```powershell
+node ./src/cli.js metrics log ./data/metrics/telemetry.entry.sample.json --file ./data/metrics/telemetry.log.json
+```
+
+Generate the weekly metrics report:
+
+```powershell
+node ./src/cli.js report weekly --file ./data/metrics/telemetry.log.json
+```
+

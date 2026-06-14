@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "createdAt": "2026-06-14T12:00:00.000Z",
+    "evaluation": { "allowed": true, "requiresHumanApproval": false },
+    "overridden": false,
+    "escalated": false,
+    "shouldEscalate": false,
+    "turnaroundMs": 950
+  },
+  {
+    "id": 2,
+    "createdAt": "2026-06-14T12:10:00.000Z",
+    "evaluation": { "allowed": false, "requiresHumanApproval": true },
+    "overridden": true,
+    "escalated": true,
+    "shouldEscalate": false,
+    "turnaroundMs": 1800
+  },
+  {
+    "id": 3,
+    "createdAt": "2026-06-14T12:20:00.000Z",
+    "evaluation": { "allowed": true, "requiresHumanApproval": true },
+    "overridden": false,
+    "escalated": true,
+    "shouldEscalate": true,
+    "turnaroundMs": 1300
+  }
+]

@@ -34,3 +34,25 @@ node ./src/cli.js report eval ./data/demo/evals.sample.json
 - Memory file grows with one or more entries.
 - Crossroads route returns `validate-canon` for `canon` tasks.
 - Report returns counts for `total`, `allowed`, `blocked`, and `approvals`.
+
+## Weekly Pilot Metrics
+
+Record a telemetry entry:
+
+```powershell
+node ./src/cli.js metrics log ./data/metrics/telemetry.entry.sample.json --file ./data/metrics/telemetry.log.json
+```
+
+Generate the weekly report:
+
+```powershell
+node ./src/cli.js report weekly --file ./data/metrics/telemetry.log.json
+```
+
+Tracked fields:
+
+- `safetyPassRate`
+- `canonConsistencyRate`
+- `humanOverrideRate`
+- `medianTurnaroundMs`
+- `approvalFrictionRate`

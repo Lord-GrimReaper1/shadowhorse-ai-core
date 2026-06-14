@@ -7,13 +7,14 @@ import { CanonStore } from './canon/index.js';
 import { MemoryStore } from './memory/index.js';
 import { evaluateRequest } from './policy/index.js';
 import { Orchestrator } from './orchestrator/index.js';
-import { generateEvaluationReport } from './report/index.js';
+import { generateEvaluationReport, generateWeeklyMetricsReport } from './report/index.js';
 import { listCrossroadsCapabilities, routeCrossroadsTask } from './adapters/crossroads/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const defaultCanonFile = path.resolve(__dirname, '../data/canon/canon.snapshot.json');
 const defaultMemoryFile = path.resolve(__dirname, '../data/memory/memory.snapshot.json');
+const defaultTelemetryFile = path.resolve(__dirname, '../data/metrics/telemetry.log.json');
 
 function parseArgs(values) {
   const options = {};
@@ -132,7 +133,7 @@ async function handleCrossroads(args) {
 }
 
 async function handleReport(args) {
-  const { positional } = parseArgs(args);
+  const { options, positional } = parseArgs(args);
   const command = positional[0];
 
   if (command === 'eval') {
@@ -142,7 +143,60 @@ async function handleReport(args) {
     return 0;
   }
 
+  if (command === 'weekly') {
+    const input = positional.slice(1).join(' ');
+    const entries = input
+      ? await readJsonInput(input)
+      : await readJsonInput(options.file ?? defaultTelemetryFile);
+    console.log(JSON.stringify(generateWeeklyMetricsReport(entries), null, 2));
+    return 0;
+  }
+
   throw new Error(`Unknown report command: ${command}`);
+}
+
+async function handleMetrics(args) {
+  const { options, positional } = parseArgs(args);
+  const command = positional[0];
+  const filePath = options.file ?? defaultTelemetryFile;
+  const exists = await fs
+    .access(filePath)
+    .then(() => true)
+    .catch(() => false);
+  const entries = exists ? await readJsonInput(filePath) : [];
+
+  if (!Array.isArray(entries)) {
+    throw new Error('Metrics file must contain a JSON array');
+  }
+
+  if (command === 'list') {
+    console.log(JSON.stringify(entries, null, 2));
+    return 0;
+  }
+
+  if (command === 'log') {
+    const payload = await readJsonInput(positional.slice(1).join(' '));
+    const entry = {
+      id: entries.length + 1,
+      createdAt: new Date().toISOString(),
+      ...payload
+    };
+
+    entries.push(entry);
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.writeFile(filePath, JSON.stringify(entries, null, 2), 'utf8');
+    console.log(JSON.stringify(entry, null, 2));
+    return 0;
+  }
+
+  if (command === 'reset') {
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.writeFile(filePath, JSON.stringify([], null, 2), 'utf8');
+    console.log('[]');
+    return 0;
+  }
+
+  throw new Error(`Unknown metrics command: ${command}`);
 }
 
 async function main() {
@@ -150,7 +204,7 @@ async function main() {
 
   if (!command) {
     console.log('Shadowhorse AI Core CLI');
-    console.log('Commands: policy <text>, route <kind> <text>, canon <list|add|load|save>, memory <list|add|load|save>, crossroads <capabilities|route>, report <eval>');
+    console.log('Commands: policy <text>, route <kind> <text>, canon <list|add|load|save>, memory <list|add|load|save>, crossroads <capabilities|route>, metrics <list|log|reset>, report <eval|weekly>');
     return 0;
   }
 
@@ -182,6 +236,10 @@ async function main() {
 
   if (command === 'report') {
     return handleReport(args);
+  }
+
+  if (command === 'metrics') {
+    return handleMetrics(args);
   }
 
   throw new Error(`Unknown command: ${command}`);

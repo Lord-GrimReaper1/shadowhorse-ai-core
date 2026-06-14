@@ -1,0 +1,11 @@
+{
+  "name": "shadowhorse-ai-core",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Shadowhorse studio-wide AI policy, orchestration, and architecture core.",
+  "scripts": {
+    "test": "node --test",
+    "validate": "node --test"
+  }
+}

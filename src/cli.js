@@ -7,6 +7,7 @@ import { CanonStore } from './canon/index.js';
 import { MemoryStore } from './memory/index.js';
 import { evaluateRequest } from './policy/index.js';
 import { Orchestrator } from './orchestrator/index.js';
+import { runAssistant } from './assistant/index.js';
 import { generateEvaluationReport, generateWeeklyMetricsReport } from './report/index.js';
 import { listCrossroadsCapabilities, routeCrossroadsTask } from './adapters/crossroads/index.js';
 
@@ -204,8 +205,29 @@ async function main() {
 
   if (!command) {
     console.log('Shadowhorse AI Core CLI');
-    console.log('Commands: policy <text>, route <kind> <text>, canon <list|add|load|save>, memory <list|add|load|save>, crossroads <capabilities|route>, metrics <list|log|reset>, report <eval|weekly>');
+    console.log('Commands: assistant <text> [--kind] [--provider], policy <text>, route <kind> <text>, canon <list|add|load|save>, memory <list|add|load|save>, crossroads <capabilities|route>, metrics <list|log|reset>, report <eval|weekly>');
     return 0;
+  }
+
+  if (command === 'assistant') {
+    const { options, positional } = parseArgs(args);
+    const prompt = positional.join(' ');
+
+    if (!prompt.trim()) {
+      throw new Error('Assistant command requires prompt text');
+    }
+
+    const result = await runAssistant({
+      text: prompt,
+      kind: options.kind ?? 'general',
+      provider: options.provider ?? 'auto',
+      canonFile: options['canon-file'] ?? defaultCanonFile,
+      memoryFile: options['memory-file'] ?? defaultMemoryFile,
+      telemetryFile: options['metrics-file'] ?? defaultTelemetryFile
+    });
+
+    console.log(JSON.stringify(result, null, 2));
+    return result.ok ? 0 : 1;
   }
 
   if (command === 'policy') {

@@ -14,6 +14,21 @@ Shadowhorse AI Core is the studio-wide policy, orchestration, and architecture l
 
 This repository is intended to be the canonical home for Shadowhorse AI policy and architecture. Crossroads-specific adapters and gameplay hooks should live in the Crossroads repo.
 
+## Quickstart Assistant
+
+Run the one-command assistant entrypoint:
+
+```powershell
+npm run assistant -- "check faction canon integrity for village event"
+```
+
+Optional controls:
+
+```powershell
+npm run assistant -- "draft implementation plan for npc trust cache" --kind code --provider copilot
+npm run assistant -- "validate settlement lore continuity" --kind canon --provider auto
+```
+
 ## Quickstart Workflow
 
 Run the persistence-aware demo workflow:

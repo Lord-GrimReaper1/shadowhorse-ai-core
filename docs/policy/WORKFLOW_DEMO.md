@@ -7,6 +7,14 @@ This demo proves four core flows in order:
 3. Crossroads route command
 4. Evaluation report generation
 
+## Assistant Trigger
+
+Use the assistant front door command for pilot runs:
+
+```powershell
+npm run assistant -- "check faction canon integrity for village event"
+```
+
 ## Run All At Once
 
 ```powershell

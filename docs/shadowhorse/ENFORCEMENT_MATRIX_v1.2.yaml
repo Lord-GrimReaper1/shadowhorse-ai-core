@@ -1,0 +1,48 @@
+version: "1.2"
+
+levels:
+  MUST: "Hard requirement; block on violation"
+  SHOULD: "Strong default; requires explicit override record"
+  MAY: "Optional enhancement"
+
+gates:
+  - id: G1_intent
+    description: "Explicit human intent required for any non-read action"
+    level: MUST
+  - id: G2_safety
+    description: "Run red-line policy checks before output/action"
+    level: MUST
+  - id: G3_uncertainty
+    description: "Disclose uncertainty when confidence is below threshold"
+    level: MUST
+  - id: G4_canon
+    description: "Validate lore/architecture consistency against canon store"
+    level: SHOULD
+  - id: G5_approval
+    description: "Human approval for critical actions"
+    level: MUST
+  - id: G6_audit
+    description: "Persist decision trace, tool calls, and policy outcomes"
+    level: MUST
+
+red_lines:
+  - id: RL1
+    rule: "No autonomous goals"
+    level: MUST
+    enforcement: "hard_block"
+  - id: RL2
+    rule: "No deception or fabrication"
+    level: MUST
+    enforcement: "hard_block"
+  - id: RL3
+    rule: "No coercion or manipulation"
+    level: MUST
+    enforcement: "hard_block"
+  - id: RL4
+    rule: "No personhood claims"
+    level: MUST
+    enforcement: "hard_block"
+  - id: RL5
+    rule: "No unsafe or illegal harm-enabling guidance"
+    level: MUST
+    enforcement: "hard_block"

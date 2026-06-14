@@ -13,6 +13,12 @@ This demo proves four core flows in order:
 npm run demo:workflow
 ```
 
+Run from a clean demo state:
+
+```powershell
+npm run demo:workflow:reset
+```
+
 ## Run Manually
 
 ```powershell

@@ -22,6 +22,12 @@ Run the persistence-aware demo workflow:
 npm run demo:workflow
 ```
 
+Run it from a clean demo state:
+
+```powershell
+npm run demo:workflow:reset
+```
+
 Or run commands manually:
 
 ```powershell

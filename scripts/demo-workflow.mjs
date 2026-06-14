@@ -11,6 +11,7 @@ const cliPath = path.join(root, 'src', 'cli.js');
 const canonFile = path.join(root, 'data', 'demo', 'canon.demo.json');
 const memoryFile = path.join(root, 'data', 'demo', 'memory.demo.json');
 const evalsFile = path.join(root, 'data', 'demo', 'evals.sample.json');
+const resetRequested = process.argv.includes('--reset');
 
 function runCli(args) {
   const output = execFileSync(process.execPath, [cliPath, ...args], {
@@ -23,6 +24,12 @@ function runCli(args) {
 
 async function main() {
   await fs.mkdir(path.dirname(canonFile), { recursive: true });
+
+  if (resetRequested) {
+    await fs.writeFile(canonFile, JSON.stringify({ version: '1.2', entries: [] }, null, 2), 'utf8');
+    await fs.writeFile(memoryFile, JSON.stringify({ entries: [] }, null, 2), 'utf8');
+    console.log('Reset demo canon and memory files.');
+  }
 
   console.log('1) Canon persistence');
   const canonResult = runCli([

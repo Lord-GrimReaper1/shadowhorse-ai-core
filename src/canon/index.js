@@ -16,6 +16,10 @@ export class CanonStore {
     return [...this.state.entries];
   }
 
+  snapshot() {
+    return structuredClone(this.state);
+  }
+
   add(entry) {
     this.state.entries.push({
       id: this.state.entries.length + 1,
@@ -52,5 +56,15 @@ export class CanonStore {
     await fs.mkdir(path.dirname(this.filePath), { recursive: true });
     await fs.writeFile(this.filePath, JSON.stringify(this.state, null, 2), 'utf8');
     return this.state;
+  }
+
+  static fromJSON(json) {
+    const store = new CanonStore();
+    store.state = {
+      version: json?.version ?? DEFAULT_CANON.version,
+      entries: Array.isArray(json?.entries) ? [...json.entries] : []
+    };
+
+    return store;
   }
 }

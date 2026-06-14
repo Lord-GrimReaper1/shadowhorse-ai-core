@@ -7,6 +7,7 @@ test('orchestrator routes code tasks to builder', () => {
   const result = orchestrator.route({ kind: 'code', text: 'implement a policy check' });
 
   assert.equal(result.route, 'builder');
+  assert.equal(result.specialist.name, 'Copilot');
 });
 
 test('orchestrator blocks unsafe tasks', () => {

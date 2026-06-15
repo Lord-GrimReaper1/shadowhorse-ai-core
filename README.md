@@ -27,6 +27,14 @@ Optional controls:
 ```powershell
 npm run assistant -- "draft implementation plan for npc trust cache" --kind code --provider copilot
 npm run assistant -- "validate settlement lore continuity" --kind canon --provider auto
+npm run assistant -- "outline co-op event flow" --kind general --persona lyra
+```
+
+List and inspect available personas:
+
+```powershell
+node ./src/cli.js personas list
+node ./src/cli.js personas show elara
 ```
 
 ## Quickstart Workflow

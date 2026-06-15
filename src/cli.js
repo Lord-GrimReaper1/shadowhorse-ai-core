@@ -8,6 +8,7 @@ import { MemoryStore } from './memory/index.js';
 import { evaluateRequest } from './policy/index.js';
 import { Orchestrator } from './orchestrator/index.js';
 import { runAssistant } from './assistant/index.js';
+import { getPersona, listPersonas } from './personas/index.js';
 import { generateEvaluationReport, generateWeeklyMetricsReport } from './report/index.js';
 import { listCrossroadsCapabilities, routeCrossroadsTask } from './adapters/crossroads/index.js';
 
@@ -200,12 +201,30 @@ async function handleMetrics(args) {
   throw new Error(`Unknown metrics command: ${command}`);
 }
 
+async function handlePersonas(args) {
+  const { positional } = parseArgs(args);
+  const command = positional[0] ?? 'list';
+
+  if (command === 'list') {
+    console.log(JSON.stringify(listPersonas(), null, 2));
+    return 0;
+  }
+
+  if (command === 'show') {
+    const key = positional[1];
+    console.log(JSON.stringify(getPersona(key), null, 2));
+    return 0;
+  }
+
+  throw new Error(`Unknown personas command: ${command}`);
+}
+
 async function main() {
   const [command, ...args] = process.argv.slice(2);
 
   if (!command) {
     console.log('Shadowhorse AI Core CLI');
-    console.log('Commands: assistant <text> [--kind] [--provider], policy <text>, route <kind> <text>, canon <list|add|load|save>, memory <list|add|load|save>, crossroads <capabilities|route>, metrics <list|log|reset>, report <eval|weekly>');
+    console.log('Commands: assistant <text> [--kind] [--provider] [--persona], personas <list|show>, policy <text>, route <kind> <text>, canon <list|add|load|save>, memory <list|add|load|save>, crossroads <capabilities|route>, metrics <list|log|reset>, report <eval|weekly>');
     return 0;
   }
 
@@ -221,6 +240,7 @@ async function main() {
       text: prompt,
       kind: options.kind ?? 'general',
       provider: options.provider ?? 'auto',
+      persona: options.persona ?? 'elara',
       canonFile: options['canon-file'] ?? defaultCanonFile,
       memoryFile: options['memory-file'] ?? defaultMemoryFile,
       telemetryFile: options['metrics-file'] ?? defaultTelemetryFile
@@ -262,6 +282,10 @@ async function main() {
 
   if (command === 'metrics') {
     return handleMetrics(args);
+  }
+
+  if (command === 'personas') {
+    return handlePersonas(args);
   }
 
   throw new Error(`Unknown command: ${command}`);

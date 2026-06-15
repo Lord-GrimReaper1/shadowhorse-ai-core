@@ -8,3 +8,4 @@ export { generateWeeklyMetricsReport } from './report/index.js';
 export { createCrossroadsAdapter, listCrossroadsCapabilities, routeCrossroadsTask } from './adapters/crossroads/index.js';
 export { createProviderRegistry, selectProviderForRoute } from './providers/index.js';
 export { runAssistant } from './assistant/index.js';
+export { listPersonas, getPersona, formatPersonaResponse } from './personas/index.js';

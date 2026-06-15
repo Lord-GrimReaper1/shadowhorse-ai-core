@@ -15,6 +15,13 @@ Use the assistant front door command for pilot runs:
 npm run assistant -- "check faction canon integrity for village event"
 ```
 
+Switch persona style while keeping the same policy and routing engine:
+
+```powershell
+npm run assistant -- "draft co-op narrative hooks" --persona seren
+node ./src/cli.js personas list
+```
+
 ## Run All At Once
 
 ```powershell

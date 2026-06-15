@@ -4,6 +4,7 @@ import { CanonStore } from '../canon/index.js';
 import { MemoryStore } from '../memory/index.js';
 import { Orchestrator } from '../orchestrator/index.js';
 import { createProviderRegistry, selectProviderForRoute } from '../providers/index.js';
+import { getPersona, formatPersonaResponse } from '../personas/index.js';
 
 async function readTelemetry(filePath) {
   try {
@@ -34,6 +35,7 @@ export async function runAssistant({
   text,
   kind = 'general',
   provider = 'auto',
+  persona = 'elara',
   canonFile,
   memoryFile,
   telemetryFile
@@ -52,6 +54,7 @@ export async function runAssistant({
   };
 
   const registry = createProviderRegistry();
+  const selectedPersona = getPersona(persona);
   const selectedProvider = selectProviderForRoute({
     route: routeResult.route,
     override: provider === 'auto' ? null : provider,
@@ -60,7 +63,8 @@ export async function runAssistant({
 
   let response = null;
   if (routeResult.route !== 'blocked') {
-    response = await selectedProvider.generate({ text, context, route: routeResult.route });
+    const providerResponse = await selectedProvider.generate({ text, context, route: routeResult.route });
+    response = formatPersonaResponse(selectedPersona, providerResponse);
   }
 
   const turnaroundMs = Date.now() - startedAt;
@@ -69,9 +73,11 @@ export async function runAssistant({
     input: {
       text,
       kind,
-      providerRequested: provider
+      providerRequested: provider,
+      personaRequested: persona
     },
     provider: selectedProvider?.key ?? null,
+    persona: selectedPersona.key,
     route: routeResult.route,
     evaluation: routeResult.evaluation,
     overridden: false,
@@ -88,6 +94,7 @@ export async function runAssistant({
     ok: routeResult.route !== 'blocked',
     route: routeResult.route,
     provider: selectedProvider?.key ?? null,
+    persona: selectedPersona.key,
     specialist: routeResult.specialist?.name ?? null,
     evaluation: routeResult.evaluation,
     response,

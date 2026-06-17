@@ -16,13 +16,18 @@ Shadowhorse AI Core remains the studio-wide policy, orchestration, and architect
 
 This repository is intended to be the canonical home for Shadowhorse AI policy and architecture. Crossroads-specific adapters and gameplay hooks should live in the Crossroads repo.
 
-## Quickstart Assistant
+## Quickstart Pearl
 
-Run the one-command assistant entrypoint:
+Run the one-command Pearl entrypoint:
+
+```powershell
+npm run pearl -- "check faction canon integrity for village event"
+```
+
+Compatibility alias (still supported):
 
 ```powershell
 npm run assistant -- "check faction canon integrity for village event"
-npm run pearl -- "check faction canon integrity for village event"
 ```
 
 The assistant identifies itself as Pearl in the CLI and response layer.
@@ -30,9 +35,9 @@ The assistant identifies itself as Pearl in the CLI and response layer.
 Optional controls:
 
 ```powershell
-npm run assistant -- "draft implementation plan for npc trust cache" --kind code --provider copilot
-npm run assistant -- "validate settlement lore continuity" --kind canon --provider auto
-npm run assistant -- "outline co-op event flow" --kind general --persona lyra
+npm run pearl -- "draft implementation plan for npc trust cache" --kind code --provider copilot
+npm run pearl -- "validate settlement lore continuity" --kind canon --provider auto
+npm run pearl -- "outline co-op event flow" --kind general --persona lyra
 ```
 
 `Pearl` is the private production default persona, and the public persona roster stays consumer-facing.

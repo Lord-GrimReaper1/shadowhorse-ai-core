@@ -7,9 +7,15 @@ This demo proves four core flows in order:
 3. Crossroads route command
 4. Evaluation report generation
 
-## Assistant Trigger
+## Pearl Trigger
 
-Use the assistant front door command for pilot runs:
+Use the Pearl front door command for pilot runs:
+
+```powershell
+npm run pearl -- "check faction canon integrity for village event"
+```
+
+Compatibility alias (still supported):
 
 ```powershell
 npm run assistant -- "check faction canon integrity for village event"
@@ -18,7 +24,7 @@ npm run assistant -- "check faction canon integrity for village event"
 Switch persona style while keeping the same policy and routing engine:
 
 ```powershell
-npm run assistant -- "draft co-op narrative hooks" --persona seren
+npm run pearl -- "draft co-op narrative hooks" --persona seren
 node ./src/cli.js personas list
 node ./src/cli.js personas show pearl
 ```

@@ -234,7 +234,7 @@ async function main() {
     const prompt = positional.join(' ');
 
     if (!prompt.trim()) {
-      throw new Error('Assistant command requires prompt text');
+      throw new Error('Pearl command requires prompt text');
     }
 
     const result = await runAssistant({

@@ -76,6 +76,40 @@ node ./src/cli.js report eval ./data/demo/evals.sample.json
 
 Detailed steps are in [docs/policy/WORKFLOW_DEMO.md](docs/policy/WORKFLOW_DEMO.md).
 
+## Unity Bridge
+
+Start Pearl's local Unity bridge service:
+
+```powershell
+npm run pearl:unity-bridge
+```
+
+Bridge endpoints:
+
+- `GET /health`
+- `GET /v1/unity/schema`
+- `POST /v1/unity/ask`
+
+Example request body:
+
+```json
+{
+	"text": "Check this scene for lore and system consistency.",
+	"kind": "canon",
+	"persona": "pearl",
+	"provider": "auto",
+	"unityContext": {
+		"projectName": "Crossroads",
+		"sceneName": "Runtime Smoke Test",
+		"selectedObjects": ["NPC_Patrol_01", "Campfire_A"],
+		"mode": "ask",
+		"playMode": false
+	}
+}
+```
+
+Use [adapters/unity/PearlBridgeClient.cs](adapters/unity/PearlBridgeClient.cs) as the starter Unity-side connector.
+
 ## Weekly Metrics
 
 Log a pilot run record:

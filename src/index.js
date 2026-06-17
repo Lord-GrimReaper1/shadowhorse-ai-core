@@ -9,3 +9,4 @@ export { createCrossroadsAdapter, listCrossroadsCapabilities, routeCrossroadsTas
 export { createProviderRegistry, selectProviderForRoute } from './providers/index.js';
 export { runAssistant } from './assistant/index.js';
 export { listPersonas, getPersona, formatPersonaResponse } from './personas/index.js';
+export { UNITY_BRIDGE_SCHEMA, validateUnityBridgeRequest, buildUnityPrompt } from './bridge/unity/schema.js';

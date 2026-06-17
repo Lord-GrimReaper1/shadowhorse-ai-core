@@ -10,6 +10,7 @@
     "shadowhorse": "node ./src/cli.js",
     "assistant": "node ./src/cli.js assistant",
     "pearl": "node ./src/cli.js pearl",
+    "pearl:unity-bridge": "node ./src/bridge/unity/server.js",
     "demo:workflow": "node ./scripts/demo-workflow.mjs",
     "demo:workflow:reset": "node ./scripts/demo-workflow.mjs --reset"
   }

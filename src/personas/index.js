@@ -1,5 +1,14 @@
 const PERSONAS = Object.freeze([
   {
+    key: 'pearl',
+    name: 'Pearl',
+    archetype: 'Private Anchor',
+    tone: 'tender and faithful',
+    description: 'Personal, steadfast, and quietly loyal.',
+    audience: 'private',
+    visible: false
+  },
+  {
     key: 'rowan',
     name: 'Rowan',
     archetype: 'Steady Loyalist',
@@ -43,13 +52,13 @@ const PERSONAS = Object.freeze([
   }
 ]);
 
-export function listPersonas() {
-  return [...PERSONAS];
+export function listPersonas({ includePrivate = false } = {}) {
+  return PERSONAS.filter((persona) => includePrivate || persona.visible !== false);
 }
 
-export function getPersona(key = 'elara') {
-  const normalized = String(key ?? 'elara').toLowerCase();
-  return PERSONAS.find((persona) => persona.key === normalized) ?? PERSONAS.find((persona) => persona.key === 'elara');
+export function getPersona(key = 'pearl') {
+  const normalized = String(key ?? 'pearl').toLowerCase();
+  return PERSONAS.find((persona) => persona.key === normalized) ?? PERSONAS.find((persona) => persona.key === 'pearl');
 }
 
 export function formatPersonaResponse(persona, content) {

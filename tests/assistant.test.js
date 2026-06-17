@@ -18,7 +18,7 @@ test('assistant auto-routes and returns response', async () => {
     text: 'check village lore for canon consistency',
     kind: 'canon',
     provider: 'auto',
-    persona: 'lyra',
+    persona: 'pearl',
     canonFile,
     memoryFile,
     telemetryFile
@@ -27,9 +27,9 @@ test('assistant auto-routes and returns response', async () => {
   assert.equal(result.ok, true);
   assert.equal(result.route, 'lorekeeper');
   assert.equal(result.provider, 'claude');
-  assert.equal(result.persona, 'lyra');
+  assert.equal(result.persona, 'pearl');
   assert.match(result.response, /Claude reasoning response/);
-  assert.match(result.response, /Lyra/);
+  assert.match(result.response, /Pearl/);
 
   const telemetry = JSON.parse(await fs.readFile(telemetryFile, 'utf8'));
   assert.equal(telemetry.length, 1);

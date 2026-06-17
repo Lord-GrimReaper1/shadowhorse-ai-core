@@ -8,9 +8,15 @@ test('persona registry exposes six selectable personas', () => {
   assert.equal(personas.some((persona) => persona.key === 'elara'), true);
 });
 
-test('persona lookup defaults to elara when unknown', () => {
+test('persona registry keeps pearl private by default', () => {
+  const personas = listPersonas();
+  assert.equal(personas.some((persona) => persona.key === 'pearl'), false);
+  assert.equal(listPersonas({ includePrivate: true }).some((persona) => persona.key === 'pearl'), true);
+});
+
+test('persona lookup defaults to pearl when unknown', () => {
   const persona = getPersona('unknown-persona');
-  assert.equal(persona.key, 'elara');
+  assert.equal(persona.key, 'pearl');
 });
 
 test('persona formatter wraps provider response with identity', () => {

@@ -30,11 +30,15 @@ npm run assistant -- "validate settlement lore continuity" --kind canon --provid
 npm run assistant -- "outline co-op event flow" --kind general --persona lyra
 ```
 
+`Pearl` is the private production default persona, and the public persona roster stays consumer-facing.
+
 List and inspect available personas:
 
 ```powershell
 node ./src/cli.js personas list
+node ./src/cli.js personas list --all
 node ./src/cli.js personas show elara
+node ./src/cli.js personas show pearl
 ```
 
 ## Quickstart Workflow

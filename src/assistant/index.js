@@ -35,7 +35,7 @@ export async function runAssistant({
   text,
   kind = 'general',
   provider = 'auto',
-  persona = 'elara',
+  persona = 'pearl',
   canonFile,
   memoryFile,
   telemetryFile

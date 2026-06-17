@@ -202,11 +202,12 @@ async function handleMetrics(args) {
 }
 
 async function handlePersonas(args) {
-  const { positional } = parseArgs(args);
+  const { options, positional } = parseArgs(args);
   const command = positional[0] ?? 'list';
 
   if (command === 'list') {
-    console.log(JSON.stringify(listPersonas(), null, 2));
+    const includePrivate = options.all === true;
+    console.log(JSON.stringify(listPersonas({ includePrivate }), null, 2));
     return 0;
   }
 
@@ -240,7 +241,7 @@ async function main() {
       text: prompt,
       kind: options.kind ?? 'general',
       provider: options.provider ?? 'auto',
-      persona: options.persona ?? 'elara',
+      persona: options.persona ?? 'pearl',
       canonFile: options['canon-file'] ?? defaultCanonFile,
       memoryFile: options['memory-file'] ?? defaultMemoryFile,
       telemetryFile: options['metrics-file'] ?? defaultTelemetryFile

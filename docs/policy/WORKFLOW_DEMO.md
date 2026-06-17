@@ -20,7 +20,10 @@ Switch persona style while keeping the same policy and routing engine:
 ```powershell
 npm run assistant -- "draft co-op narrative hooks" --persona seren
 node ./src/cli.js personas list
+node ./src/cli.js personas show pearl
 ```
+
+`Pearl` is the private default persona for production use.
 
 ## Run All At Once
 

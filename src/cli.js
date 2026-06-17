@@ -224,12 +224,12 @@ async function main() {
   const [command, ...args] = process.argv.slice(2);
 
   if (!command) {
-    console.log('Shadowhorse AI Core CLI');
-    console.log('Commands: assistant <text> [--kind] [--provider] [--persona], personas <list|show>, policy <text>, route <kind> <text>, canon <list|add|load|save>, memory <list|add|load|save>, crossroads <capabilities|route>, metrics <list|log|reset>, report <eval|weekly>');
+    console.log('Pearl CLI for Shadowhorse AI Core');
+    console.log('Commands: pearl <text> [--kind] [--provider] [--persona], assistant <text> [--kind] [--provider] [--persona], personas <list|show>, policy <text>, route <kind> <text>, canon <list|add|load|save>, memory <list|add|load|save>, crossroads <capabilities|route>, metrics <list|log|reset>, report <eval|weekly>');
     return 0;
   }
 
-  if (command === 'assistant') {
+  if (command === 'assistant' || command === 'pearl') {
     const { options, positional } = parseArgs(args);
     const prompt = positional.join(' ');
 

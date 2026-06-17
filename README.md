@@ -1,6 +1,8 @@
-# Shadowhorse AI Core
+# Pearl
 
-Shadowhorse AI Core is the studio-wide policy, orchestration, and architecture layer for Shadowhorse Games.
+Pearl is the personal production identity for the Shadowhorse AI Core runtime and the assistant identity presented to users.
+
+Shadowhorse AI Core remains the studio-wide policy, orchestration, and architecture layer for Shadowhorse Games.
 
 ## Scope
 
@@ -20,7 +22,10 @@ Run the one-command assistant entrypoint:
 
 ```powershell
 npm run assistant -- "check faction canon integrity for village event"
+npm run pearl -- "check faction canon integrity for village event"
 ```
+
+The assistant identifies itself as Pearl in the CLI and response layer.
 
 Optional controls:
 

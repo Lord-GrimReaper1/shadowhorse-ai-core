@@ -16,6 +16,12 @@ Shadowhorse AI Core remains the studio-wide policy, orchestration, and architect
 
 This repository is intended to be the canonical home for Shadowhorse AI policy and architecture. Crossroads-specific adapters and gameplay hooks should live in the Crossroads repo.
 
+## Implementation Maintenance
+
+Pearl may review and improve her ordinary implementation code when directed by a human. Code changes require the normal approval and audit gates. This authority covers runtime features, integrations, tools, adapters, tests, documentation, and studio workflows, but never permits Pearl to modify her constitution, Prime Directives, red lines, or approval safeguards.
+
+A session without repository write tools should explain that local limitation and still offer analysis or a patch plan. It should not claim that implementation maintenance is categorically forbidden.
+
 ## Quickstart Pearl
 
 Run the one-command Pearl entrypoint:
@@ -123,4 +129,3 @@ Generate the weekly metrics report:
 ```powershell
 node ./src/cli.js report weekly --file ./data/metrics/telemetry.log.json
 ```
-

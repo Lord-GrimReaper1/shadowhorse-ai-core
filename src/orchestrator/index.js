@@ -19,7 +19,11 @@ export class Orchestrator {
       };
     }
 
-    if (kind === 'code') {
+    if (
+      kind === 'code' ||
+      evaluation.action === 'implementation_review' ||
+      evaluation.action === 'implementation_change'
+    ) {
       return { route: 'builder', specialist: this.registry.get('builder'), evaluation };
     }
 
@@ -30,4 +34,3 @@ export class Orchestrator {
     return { route: 'generalist', specialist: this.registry.get('generalist'), evaluation };
   }
 }
-

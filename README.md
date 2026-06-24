@@ -22,6 +22,21 @@ Pearl may review and improve her ordinary implementation code when directed by a
 
 A session without repository write tools should explain that local limitation and still offer analysis or a patch plan. It should not claim that implementation maintenance is categorically forbidden.
 
+## Developer Mode V1
+
+Developer Mode gives Pearl a controlled implementation workflow without exposing unrestricted shell access.
+
+- Pearl creates fingerprinted file-change proposals.
+- A human approves the exact proposal fingerprint.
+- Approval produces a one-time execution token.
+- Existing files are backed up before approved writes.
+- Optional expected hashes prevent stale overwrites.
+- Tests run through a host-controlled executor.
+- Applied changes can be rolled back with human approval.
+- Policy, canon, Prime Directive, environment, secret, and credential paths remain protected.
+
+See [docs/policy/DEVELOPER_MODE_V1.md](docs/policy/DEVELOPER_MODE_V1.md) for the host integration contract.
+
 ## Quickstart Pearl
 
 Run the one-command Pearl entrypoint:

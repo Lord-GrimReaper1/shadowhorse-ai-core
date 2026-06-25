@@ -56,6 +56,14 @@ test('runtime instructions require objective-specific repository and package evi
   assert.match(instruction, /Do not ask the human to restate work/i);
 });
 
+test('runtime instructions keep internal execution out of normal conversation', () => {
+  const instruction = runtime.buildRuntimeInstruction({ id: 'job-quiet', objective: 'Tell me your prime directives.' });
+  assert.match(instruction, /Keep all runtime mechanics private/i);
+  assert.match(instruction, /Do not narrate tool calls/i);
+  assert.match(instruction, /simple informational question.*only the relevant answer/i);
+  assert.match(instruction, /explicitly asks for status, audit evidence, job IDs/i);
+});
+
 test('research completes without a false commit approval gate', () => {
   assert.equal(runtime.completionStatus({ changed_files: [] }), 'completed');
   assert.equal(runtime.completionStatus({ changed_files: ['Assets/Test.cs'] }), 'awaiting_commit_approval');

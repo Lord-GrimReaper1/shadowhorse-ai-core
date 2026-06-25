@@ -131,6 +131,24 @@ Example request body:
 
 Use [adapters/unity/PearlBridgeClient.cs](adapters/unity/PearlBridgeClient.cs) as the starter Unity-side connector.
 
+## Pearl Service Runtime
+
+Pearl's canonical local service runtime lives in
+[`services/pearl-runtime`](services/pearl-runtime). It owns voice, transcription,
+durable agent jobs, repository grounding, protected implementation proposals,
+conversation memory, provider clients, and Unity Package Manager coordination.
+
+Install and start it from the repository root:
+
+```powershell
+npm run pearl:runtime:install
+Copy-Item services/pearl-runtime/.env.example services/pearl-runtime/.env
+npm run pearl:runtime
+```
+
+The default port is `4000`, preserving compatibility with the existing Unity
+Agent Workspace while Crossroads transitions to a thin project adapter.
+
 ## Weekly Metrics
 
 Log a pilot run record:

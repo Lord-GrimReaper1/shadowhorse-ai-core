@@ -5,11 +5,15 @@
   "type": "module",
   "description": "Shadowhorse studio-wide AI policy, orchestration, and architecture core.",
   "scripts": {
-    "test": "node --test",
-    "validate": "node --test",
+    "test": "node --test tests/*.test.js",
+    "validate": "npm run test && npm run pearl:runtime:test",
     "shadowhorse": "node ./src/cli.js",
     "assistant": "node ./src/cli.js assistant",
     "pearl": "node ./src/cli.js pearl",
+    "pearl:runtime": "npm --prefix ./services/pearl-runtime start",
+    "pearl:runtime:dev": "npm --prefix ./services/pearl-runtime run dev",
+    "pearl:runtime:test": "npm --prefix ./services/pearl-runtime test",
+    "pearl:runtime:install": "npm --prefix ./services/pearl-runtime install",
     "pearl:unity-bridge": "node ./src/bridge/unity/server.js",
     "demo:workflow": "node ./scripts/demo-workflow.mjs",
     "demo:workflow:reset": "node ./scripts/demo-workflow.mjs --reset"

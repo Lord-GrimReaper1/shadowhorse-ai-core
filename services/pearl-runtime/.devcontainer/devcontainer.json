@@ -1,0 +1,8 @@
+{
+  "name": "Crossroads Node Middleware",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:0-20",
+  "features": {},
+  "forwardPorts": [4000],
+  "postCreateCommand": "cd /workspaces/${localWorkspaceFolderBasename}/pipeline/middleware/nodejs && npm install",
+  "remoteUser": "vscode"
+}

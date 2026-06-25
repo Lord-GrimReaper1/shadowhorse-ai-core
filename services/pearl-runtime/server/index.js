@@ -3,7 +3,9 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 
-require('dotenv').config();
+const runtimeRoot = path.resolve(__dirname, '..');
+const environmentFile = process.env.PEARL_ENV_FILE || path.join(runtimeRoot, '.env');
+require('dotenv').config({ path: environmentFile });
 require('./services/registerUnityPackageTools');
 require('./services/registerDeveloperTools');
 

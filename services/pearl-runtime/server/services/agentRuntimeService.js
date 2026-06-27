@@ -16,9 +16,26 @@ function includesAny(text, phrases) {
   return phrases.some(phrase => text.includes(phrase));
 }
 
+function hasChatOnlyOverride(text) {
+  const repeatCues = [
+    'repeat', 'say that again', 'say it again', 'tell me again', 'last question',
+    'previous answer', 'your last answer', 'repeat the answer'
+  ];
+  if (includesAny(text, repeatCues)) return true;
+
+  const directiveProcessQuestion = text.includes('prime directive')
+    && (text.includes('process') || text.includes('procedure') || text.includes('steps'))
+    && (text.includes('update') || text.includes('change') || text.includes('modify'))
+    && !includesAny(text, ['update the file', 'change the file', 'modify the file', 'edit the file', 'implement', 'write code']);
+  if (directiveProcessQuestion) return true;
+
+  return false;
+}
+
 function isLikelyChatOnlyObjective(objective = '') {
   const text = String(objective || '').trim().toLowerCase();
   if (!text) return false;
+  if (hasChatOnlyOverride(text)) return true;
 
   const durableWorkCues = [
     'implement', 'update', 'upgrade', 'fix', 'repair', 'create', 'add', 'remove',

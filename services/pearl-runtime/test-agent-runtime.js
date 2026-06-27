@@ -15,6 +15,35 @@ test('agent runtime queues durable work with conversation identity', () => {
   assert.equal(jobs.read(job.id).objective, 'Verify a durable queued run.');
 });
 
+test('simple conversational objectives stay in chat-only runtime', () => {
+  assert.equal(runtime.isLikelyChatOnlyObjective('List your prime directives'), true);
+  assert.equal(runtime.isLikelyChatOnlyObjective('What do you think about this approach?'), true);
+  assert.equal(runtime.isLikelyChatOnlyObjective('Explain your limitations clearly.'), true);
+
+  const job = runtime.enqueue({ title: 'Prime directives', objective: 'List your prime directives', includeRepoContext: true });
+  assert.equal(job.runtime.chat_only, true);
+  assert.equal(job.runtime.include_repo_context, false);
+});
+
+test('implementation and project status objectives still use durable agent work', () => {
+  assert.equal(runtime.isLikelyChatOnlyObjective('Where do we stand on the Unity Package Manager work?'), false);
+  assert.equal(runtime.isLikelyChatOnlyObjective('Update the microphone icon and fix speech to text.'), false);
+  assert.equal(runtime.isLikelyChatOnlyObjective('Inspect the repo and tell me what code is left.'), false);
+
+  const job = runtime.enqueue({ title: 'Package status', objective: 'Where do we stand on the Unity Package Manager work?' });
+  assert.equal(job.runtime.chat_only, false);
+  assert.equal(job.runtime.include_repo_context, true);
+});
+
+test('chat-only runtime payload disables tools and repository scans', () => {
+  const job = runtime.enqueue({ title: 'Question', objective: 'What are your prime directives?', conversationId: 'chat-runtime-test' });
+  const payload = runtime.buildChatOnlyPayload(job, job.runtime);
+  assert.equal(payload.prompt, 'What are your prime directives?');
+  assert.equal(payload.conversation_id, 'chat-runtime-test');
+  assert.equal(payload.include_repo_context, false);
+  assert.equal(payload.enable_agent_mode, false);
+});
+
 test('queued agent runs can be cancelled and retried', () => {
   const job = runtime.enqueue({ title: 'Cancel test', objective: 'Verify cancellation.' });
   const cancelled = runtime.cancel(job.id);
@@ -62,6 +91,7 @@ test('runtime instructions keep internal execution out of normal conversation', 
   assert.match(instruction, /Do not narrate tool calls/i);
   assert.match(instruction, /simple informational question.*only the relevant answer/i);
   assert.match(instruction, /explicitly asks for status, audit evidence, job IDs/i);
+  assert.match(instruction, /Do not include sections named Evidence and Analysis/i);
 });
 
 test('research completes without a false commit approval gate', () => {

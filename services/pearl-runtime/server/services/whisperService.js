@@ -1,6 +1,6 @@
 const fs = require('fs');
-const path = require('path');
 const { OpenAI } = require('openai');
+const { buildWhisperPrompt } = require('./speechNormalizationService');
 
 function getClient() {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -17,9 +17,10 @@ async function transcribeFile(filePath, options = {}) {
   const client = getClient();
   const resp = await client.audio.transcriptions.create({
     file: fs.createReadStream(filePath),
-    model: options.model || 'whisper-1'
+    model: options.model || process.env.PEARL_WHISPER_MODEL || 'whisper-1',
+    prompt: buildWhisperPrompt(options.prompt),
+    temperature: Number.isFinite(Number(options.temperature)) ? Number(options.temperature) : 0
   });
-  // The SDK returns a text field for transcription
   return resp.text || resp;
 }
 

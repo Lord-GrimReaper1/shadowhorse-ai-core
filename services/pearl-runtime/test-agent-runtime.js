@@ -21,6 +21,8 @@ test('simple conversational objectives stay in chat-only runtime', () => {
   assert.equal(runtime.isLikelyChatOnlyObjective('Explain your limitations clearly.'), true);
   assert.equal(runtime.isLikelyChatOnlyObjective('Pearl, repeat the answer to my last question again, please.'), true);
   assert.equal(runtime.isLikelyChatOnlyObjective('Bro, tell me what the process is if one of your Prime Directive needs an update.'), true);
+  assert.equal(runtime.isLikelyChatOnlyObjective('Perot, how many humans does it take to approve a prime directive change?'), true);
+  assert.equal(runtime.isLikelyChatOnlyObjective('Who is required to approve a Prime Directive change?'), true);
 
   const job = runtime.enqueue({ title: 'Prime directives', objective: 'List your prime directives', includeRepoContext: true });
   assert.equal(job.runtime.chat_only, true);

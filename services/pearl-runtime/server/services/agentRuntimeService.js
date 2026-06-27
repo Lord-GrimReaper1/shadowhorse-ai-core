@@ -23,11 +23,17 @@ function hasChatOnlyOverride(text) {
   ];
   if (includesAny(text, repeatCues)) return true;
 
-  const directiveProcessQuestion = text.includes('prime directive')
-    && (text.includes('process') || text.includes('procedure') || text.includes('steps'))
+  const directiveGovernanceQuestion = text.includes('prime directive')
     && (text.includes('update') || text.includes('change') || text.includes('modify'))
-    && !includesAny(text, ['update the file', 'change the file', 'modify the file', 'edit the file', 'implement', 'write code']);
-  if (directiveProcessQuestion) return true;
+    && includesAny(text, [
+      'process', 'procedure', 'steps', 'approve', 'approval', 'authorize',
+      'who', 'how many', 'how much', 'required', 'requirement', 'governance'
+    ])
+    && !includesAny(text, [
+      'update the file', 'change the file', 'modify the file', 'edit the file',
+      'implement', 'write code', 'apply the change', 'make the change'
+    ]);
+  if (directiveGovernanceQuestion) return true;
 
   return false;
 }

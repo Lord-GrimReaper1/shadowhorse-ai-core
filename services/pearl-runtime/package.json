@@ -10,7 +10,7 @@
     "dev": "cross-env NODE_ENV=development nodemon --ignore server/data server/index.js",
     "mcp": "node mcp-server.js",
     "mcp:inspect": "npx @modelcontextprotocol/inspector node mcp-server.js",
-    "test": "node --test test-health.js test-agent-runtime.js test-agent-tools.js test-agent-workspace.js test-assistant-memory.js test-policy-change-control.js test-policy-guardrails.js test-repo-context.js test-unity-package-manager.js test-unity-package-tools.js",
+    "test": "node --test test-health.js test-agent-runtime.js test-agent-tools.js test-agent-workspace.js test-assistant-memory.js test-policy-change-control.js test-policy-guardrails.js test-repo-context.js test-speech-normalization.js test-unity-package-manager.js test-unity-package-tools.js",
     "diagnostic:mcp": "node test-mcp-simple.js",
     "diagnostic:whisper": "node test-whisper-direct.js",
     "diagnostic:claude": "node test-claude-models.js"

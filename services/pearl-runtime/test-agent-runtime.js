@@ -23,6 +23,8 @@ test('simple conversational objectives stay in chat-only runtime', () => {
   assert.equal(runtime.isLikelyChatOnlyObjective('Bro, tell me what the process is if one of your Prime Directive needs an update.'), true);
   assert.equal(runtime.isLikelyChatOnlyObjective('Perot, how many humans does it take to approve a prime directive change?'), true);
   assert.equal(runtime.isLikelyChatOnlyObjective('Who is required to approve a Prime Directive change?'), true);
+  assert.equal(runtime.isLikelyChatOnlyObjective('This is the answer you should have given me, Pearl: Prime Directives cannot be changed casually or at runtime.'), true);
+  assert.equal(runtime.isLikelyChatOnlyObjective('The correct answer is that policy changes need dual-human approval.'), true);
 
   const job = runtime.enqueue({ title: 'Prime directives', objective: 'List your prime directives', includeRepoContext: true });
   assert.equal(job.runtime.chat_only, true);
@@ -34,6 +36,7 @@ test('implementation and project status objectives still use durable agent work'
   assert.equal(runtime.isLikelyChatOnlyObjective('Update the microphone icon and fix speech to text.'), false);
   assert.equal(runtime.isLikelyChatOnlyObjective('Inspect the repo and tell me what code is left.'), false);
   assert.equal(runtime.isLikelyChatOnlyObjective('Update the file that stores Pearl runtime routing.'), false);
+  assert.equal(runtime.isLikelyChatOnlyObjective('Implement this in code so Pearl stores the corrected answer.'), false);
 
   const job = runtime.enqueue({ title: 'Package status', objective: 'Where do we stand on the Unity Package Manager work?' });
   assert.equal(job.runtime.chat_only, false);

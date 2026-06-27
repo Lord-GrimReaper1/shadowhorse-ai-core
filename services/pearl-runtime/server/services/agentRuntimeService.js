@@ -17,6 +17,20 @@ function includesAny(text, phrases) {
 }
 
 function hasChatOnlyOverride(text) {
+  const correctionCues = [
+    'this is the answer you should have given',
+    'this is what you should have said',
+    'you should have answered',
+    'the correct answer is',
+    'that answer was wrong',
+    'that was the wrong answer',
+    'let me correct you',
+    'i want to teach you',
+    'remember this answer',
+    'use this answer instead'
+  ];
+  if (includesAny(text, correctionCues) && !includesAny(text, ['edit the file', 'update the file', 'write code', 'implement this in code'])) return true;
+
   const repeatCues = [
     'repeat', 'say that again', 'say it again', 'tell me again', 'last question',
     'previous answer', 'your last answer', 'repeat the answer'

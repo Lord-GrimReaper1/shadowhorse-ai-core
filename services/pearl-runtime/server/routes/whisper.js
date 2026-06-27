@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 const { transcribeFile } = require('../services/whisperService');
+const { normalizeTranscription } = require('../services/speechNormalizationService');
 
 const router = express.Router();
 
@@ -27,9 +28,20 @@ router.post('/', upload.single('audio'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'no file uploaded' });
     const filePath = req.file.path;
-    const text = await transcribeFile(filePath);
-    // Optionally keep the uploaded file; respond with transcription
-    return res.json({ transcription: text, filename: path.basename(filePath) });
+    const rawText = await transcribeFile(filePath, {
+      prompt: req.body?.prompt,
+      temperature: req.body?.temperature
+    });
+    const normalized = normalizeTranscription(rawText);
+    return res.json({
+      transcription: normalized.text,
+      raw_transcription: normalized.changed ? normalized.raw_text : undefined,
+      normalization: {
+        changed: normalized.changed,
+        corrections: normalized.corrections
+      },
+      filename: path.basename(filePath)
+    });
   } catch (err) {
     console.error('whisper error', err);
     return res.status(500).json({ error: String(err) });

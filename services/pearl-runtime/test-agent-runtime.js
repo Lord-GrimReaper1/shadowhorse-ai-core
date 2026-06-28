@@ -43,6 +43,22 @@ test('implementation and project status objectives still use durable agent work'
   assert.equal(job.runtime.include_repo_context, true);
 });
 
+test('git and network status objectives use fast status runtime', () => {
+  assert.equal(runtime.isFastStatusObjective('Check if the GitHub commit list is already local'), true);
+  assert.equal(runtime.isFastStatusObjective('Is this branch up to date with origin/main?'), true);
+  assert.equal(runtime.isFastStatusObjective('Can you check Pearl network connectivity?'), true);
+  assert.equal(runtime.isFastStatusObjective('Explain the prime directives'), false);
+
+  const job = runtime.enqueue({
+    title: 'Git status',
+    objective: 'Check if the GitHub commit list is already local',
+    includeRepoContext: true
+  });
+  assert.equal(job.runtime.chat_only, false);
+  assert.equal(job.runtime.fast_status, true);
+  assert.equal(job.runtime.include_repo_context, false);
+});
+
 test('chat-only runtime payload disables tools and repository scans', () => {
   const job = runtime.enqueue({ title: 'Question', objective: 'What are your prime directives?', conversationId: 'chat-runtime-test' });
   const payload = runtime.buildChatOnlyPayload(job, job.runtime);

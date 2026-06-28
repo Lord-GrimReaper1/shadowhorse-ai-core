@@ -1,5 +1,6 @@
 const { test } = require('node:test');
 const assert = require('assert');
+const { execFileSync } = require('child_process');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -27,6 +28,41 @@ function removeFixtureRepo(root) {
 
 function withFixtureRepo(fn) {
   const root = createFixtureRepo();
+  const prev = process.env.PEARL_REPO_ROOTS;
+  process.env.PEARL_REPO_ROOTS = root;
+  try {
+    fn(root);
+  } finally {
+    if (prev === undefined) {
+      delete process.env.PEARL_REPO_ROOTS;
+    } else {
+      process.env.PEARL_REPO_ROOTS = prev;
+    }
+    removeFixtureRepo(root);
+  }
+}
+
+function runGit(root, args) {
+  execFileSync('git', args, {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true
+  });
+}
+
+function createGitFixtureRepo() {
+  const root = createFixtureRepo();
+  runGit(root, ['init']);
+  runGit(root, ['config', 'user.email', 'pearl-test@example.local']);
+  runGit(root, ['config', 'user.name', 'Pearl Test']);
+  runGit(root, ['add', 'README.md', 'docs/design.md']);
+  runGit(root, ['commit', '-m', 'Initial test commit']);
+  return root;
+}
+
+function withGitFixtureRepo(fn) {
+  const root = createGitFixtureRepo();
   const prev = process.env.PEARL_REPO_ROOTS;
   process.env.PEARL_REPO_ROOTS = root;
   try {
@@ -104,6 +140,64 @@ test('Agent tools - inventory assets returns exact biome matches and counts', ()
     assert(Array.isArray(result.recommended_asset_classes), 'Expected recommended_asset_classes array');
     assert(typeof result.created_asset_breakdown === 'object', 'Expected created_asset_breakdown object');
   });
+});
+
+test('Agent tools - git status reports branch and local state without fetching', () => {
+  withGitFixtureRepo(() => {
+    const result = agentTools.executeTool('pearl_git_status', { max_commits: 5 }, { conversationId: 'test-git' });
+    assert(!result.error, 'Expected no error: ' + (result.error || ''));
+    assert(result.repo_name, 'Expected repo name');
+    assert(result.branch, 'Expected branch name or detached ref');
+    assert.strictEqual(result.fetched, false);
+    assert(Array.isArray(result.remote_commits_not_local), 'Expected remote commit array');
+    assert(Array.isArray(result.local_commits_not_remote), 'Expected local commit array');
+  });
+});
+
+test('Agent tools - network diagnostics returns configured providers without probing by default', async () => {
+  const prevBrave = process.env.BRAVE_SEARCH_API_KEY;
+  const prevTavily = process.env.TAVILY_API_KEY;
+  delete process.env.BRAVE_SEARCH_API_KEY;
+  delete process.env.TAVILY_API_KEY;
+  try {
+    const result = await agentTools.executeTool('pearl_network_diagnostics', {}, { conversationId: 'test-network' });
+    assert.strictEqual(result.node_fetch_available, true);
+    assert.strictEqual(result.configured_providers.brave_search, false);
+    assert.strictEqual(result.configured_providers.tavily, false);
+    assert.deepStrictEqual(result.checked_targets, []);
+  } finally {
+    if (prevBrave === undefined) delete process.env.BRAVE_SEARCH_API_KEY;
+    else process.env.BRAVE_SEARCH_API_KEY = prevBrave;
+    if (prevTavily === undefined) delete process.env.TAVILY_API_KEY;
+    else process.env.TAVILY_API_KEY = prevTavily;
+  }
+});
+
+test('Agent tools - web search reports missing provider key instead of using network', async () => {
+  const prevBrave = process.env.BRAVE_SEARCH_API_KEY;
+  delete process.env.BRAVE_SEARCH_API_KEY;
+  try {
+    const result = await agentTools.executeTool('pearl_web_search', { query: 'Unity editor scripting trends' }, { conversationId: 'test-web' });
+    assert.strictEqual(result.configured, false);
+    assert.strictEqual(result.provider, 'brave');
+    assert(result.error.includes('BRAVE_SEARCH_API_KEY'), 'Expected missing key message');
+  } finally {
+    if (prevBrave === undefined) delete process.env.BRAVE_SEARCH_API_KEY;
+    else process.env.BRAVE_SEARCH_API_KEY = prevBrave;
+  }
+});
+
+test('Agent tools - web page reading stays disabled until explicitly enabled', async () => {
+  const prev = process.env.PEARL_WEB_FETCH_ENABLED;
+  process.env.PEARL_WEB_FETCH_ENABLED = 'false';
+  try {
+    const result = await agentTools.executeTool('pearl_read_web_page', { url: 'https://example.com' }, { conversationId: 'test-page' });
+    assert.strictEqual(result.configured, false);
+    assert(result.error.includes('PEARL_WEB_FETCH_ENABLED'), 'Expected disabled fetch message');
+  } finally {
+    if (prev === undefined) delete process.env.PEARL_WEB_FETCH_ENABLED;
+    else process.env.PEARL_WEB_FETCH_ENABLED = prev;
+  }
 });
 
 test('Agent tools - task CRUD lifecycle', () => {

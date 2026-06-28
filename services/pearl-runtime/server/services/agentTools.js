@@ -12,6 +12,9 @@ const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const repoContextService = require('./repoContextService');
+const gitStatusService = require('./gitStatusService');
+const networkCapabilityService = require('./networkCapabilityService');
+const webSearchService = require('./webSearchService');
 
 const MAX_AGENT_ITERATIONS = 5;
 const MAX_FILE_READ_CHARS = 16000;
@@ -312,6 +315,85 @@ const TOOL_DEFINITIONS = [
           }
         },
         required: ['query']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'pearl_git_status',
+      description:
+        'Quickly check read-only Git status for an allowed studio repo. ' +
+        'Use this for branch, sync, ahead/behind, commit presence, and GitHub/local comparison questions.',
+      parameters: {
+        type: 'object',
+        properties: {
+          repo_hint: { type: 'string', description: 'Optional repo basename, e.g. "Crossroads-Game" or "shadowhorse-ai-core".' },
+          fetch_remote: {
+            type: 'boolean',
+            description: 'Whether to run git fetch before comparing. Use true only when the user asks about GitHub/remote freshness.'
+          },
+          remote: { type: 'string', description: 'Remote name. Default origin.' },
+          max_commits: { type: 'number', description: 'Max ahead/behind commits to return. Default 10, max 30.' },
+          commit: { type: 'string', description: 'Optional commit SHA to check for local presence.' }
+        }
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'pearl_network_diagnostics',
+      description:
+        'Check Pearl runtime network capability and configured web search providers. ' +
+        'Use when the user asks whether Pearl can reach GitHub, web search, APIs, or the internet.',
+      parameters: {
+        type: 'object',
+        properties: {
+          check_targets: {
+            type: 'boolean',
+            description: 'Whether to actively probe public service endpoints. Default false for quick config checks.'
+          },
+          timeout_ms: {
+            type: 'number',
+            description: 'Per-target timeout for active probes. Default 3000.'
+          }
+        }
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'pearl_web_search',
+      description:
+        'Search the public web through the configured provider. ' +
+        'Use for current trends, recent APIs, current documentation, market/design trends, and facts that may have changed.',
+      parameters: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: 'The web search query.' },
+          provider: { type: 'string', enum: ['brave', 'tavily'], description: 'Optional provider. Default comes from PEARL_WEB_SEARCH_PROVIDER or brave.' },
+          max_results: { type: 'number', description: 'Max search results. Default 5, max 8.' }
+        },
+        required: ['query']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'pearl_read_web_page',
+      description:
+        'Read public web page text after a search result has been selected. ' +
+        'This is disabled unless PEARL_WEB_FETCH_ENABLED=true.',
+      parameters: {
+        type: 'object',
+        properties: {
+          url: { type: 'string', description: 'Public http or https URL to read.' },
+          max_chars: { type: 'number', description: 'Max text characters to return. Default 12000.' }
+        },
+        required: ['url']
       }
     }
   },
@@ -834,18 +916,55 @@ function handleListTasks(args, conversationId) {
   return { tasks: Array.from(tasks.values()), count: tasks.size };
 }
 
+function handleGitStatus(args) {
+  return gitStatusService.getStatus({
+    repoHint: args.repo_hint,
+    fetchRemote: args.fetch_remote === true,
+    remote: args.remote || 'origin',
+    maxCommits: args.max_commits,
+    commit: args.commit
+  });
+}
+
+function handleNetworkDiagnostics(args) {
+  return networkCapabilityService.diagnose({
+    checkTargets: args.check_targets === true,
+    timeoutMs: args.timeout_ms
+  });
+}
+
+function handleWebSearch(args) {
+  return webSearchService.search({
+    query: args.query,
+    provider: args.provider,
+    maxResults: args.max_results
+  });
+}
+
+function handleReadWebPage(args) {
+  return webSearchService.readPage({
+    url: args.url,
+    maxChars: args.max_chars
+  });
+}
+
 // ─── Dispatcher ─────────────────────────────────────────────────────────────
 
 function executeTool(toolName, toolArgs, context = {}) {
   const { conversationId = 'default' } = context;
+  const args = toolArgs || {};
   switch (toolName) {
-    case 'pearl_read_file':    return handleReadFile(toolArgs);
-    case 'pearl_search_repo': return handleSearchRepo(toolArgs);
-    case 'pearl_list_dir':    return handleListDir(toolArgs);
-    case 'pearl_inventory_assets': return handleInventoryAssets(toolArgs);
-    case 'pearl_create_task': return handleCreateTask(toolArgs, conversationId);
-    case 'pearl_complete_task': return handleCompleteTask(toolArgs, conversationId);
-    case 'pearl_list_tasks':  return handleListTasks(toolArgs, conversationId);
+    case 'pearl_read_file':    return handleReadFile(args);
+    case 'pearl_search_repo': return handleSearchRepo(args);
+    case 'pearl_list_dir':    return handleListDir(args);
+    case 'pearl_inventory_assets': return handleInventoryAssets(args);
+    case 'pearl_git_status': return handleGitStatus(args);
+    case 'pearl_network_diagnostics': return handleNetworkDiagnostics(args);
+    case 'pearl_web_search': return handleWebSearch(args);
+    case 'pearl_read_web_page': return handleReadWebPage(args);
+    case 'pearl_create_task': return handleCreateTask(args, conversationId);
+    case 'pearl_complete_task': return handleCompleteTask(args, conversationId);
+    case 'pearl_list_tasks':  return handleListTasks(args, conversationId);
     default: return { error: 'Unknown tool: ' + toolName };
   }
 }

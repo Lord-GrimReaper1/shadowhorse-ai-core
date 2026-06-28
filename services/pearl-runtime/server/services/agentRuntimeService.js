@@ -52,6 +52,24 @@ function hasChatOnlyOverride(text) {
   return false;
 }
 
+function isFastStatusObjective(objective = '') {
+  const text = String(objective || '').trim().toLowerCase();
+  if (!text) return false;
+
+  const gitStatusCue =
+    (text.includes('commit') || text.includes('branch') || text.includes('git') || text.includes('github') || text.includes('sync')) &&
+    (text.includes('local') || text.includes('remote') || text.includes('already in') || text.includes('already on') ||
+      text.includes('ahead') || text.includes('behind') || text.includes('up to date') || text.includes('pushed') ||
+      text.includes('pulled') || text.includes('status') || text.includes('list'));
+
+  const networkCue =
+    (text.includes('network') || text.includes('internet') || text.includes('web search') || text.includes('reach github') ||
+      text.includes('connectivity')) &&
+    (text.includes('can') || text.includes('check') || text.includes('does') || text.includes('status'));
+
+  return gitStatusCue || networkCue;
+}
+
 function isLikelyChatOnlyObjective(objective = '') {
   const text = String(objective || '').trim().toLowerCase();
   if (!text) return false;
@@ -84,12 +102,14 @@ function isLikelyChatOnlyObjective(objective = '') {
 
 function enqueue({ title, objective, conversationId, repoHint, includeRepoContext = true } = {}) {
   const chatOnly = isLikelyChatOnlyObjective(objective);
+  const fastStatus = !chatOnly && isFastStatusObjective(objective);
   return jobs.create({
     title, objective, conversationId: conversationId || crypto.randomUUID(), repoHint, requestedBy: 'human',
     runtime: {
       enabled: true, state: 'queued', attempt: 0,
       chat_only: chatOnly,
-      include_repo_context: chatOnly ? false : includeRepoContext !== false,
+      fast_status: fastStatus,
+      include_repo_context: chatOnly || fastStatus ? false : includeRepoContext !== false,
       lease_owner: null, lease_expires_at: null, cancel_requested: false,
       queued_at: new Date().toISOString(), started_at: null, finished_at: null
     }
@@ -134,6 +154,9 @@ function buildRuntimeInstruction(job) {
     'Read this job first with pearl_get_implementation_job. Do not create another implementation job.',
     'Treat the human objective as the source of truth. Determine whether it asks for research/status, planning, or implementation.',
     'Before concluding, gather objective-specific evidence with the available tools. For repository questions, search and read relevant files. For Unity package questions, list installed packages and package proposals and inspect the package-manager integration documentation/code.',
+    'For branch, commit, sync, ahead/behind, local-vs-GitHub, or "is this commit local" questions, use pearl_git_status first and answer directly from that result.',
+    'For internet, web search, provider configuration, or connectivity questions, use pearl_network_diagnostics first. Use web search only when the user asks for current outside information.',
+    runtimeState(job).fast_status ? 'This is a fast status run. Prefer one targeted tool call, avoid broad repository searches, and keep the final answer short.' : '',
     'Do not treat an empty new-job proposal list as evidence that prior project work does not exist. Code proposals belong only to this job.',
     'If this is a resumed write job, list this job\'s code proposals, apply any human-approved proposals, and continue.',
     'Do not ask the human to restate work that can be discovered from repository files, package state, conversation memory, or durable job records.',
@@ -291,5 +314,6 @@ function retry(jobId) { return queueAgain(jobId, ['failed', 'cancelled', 'blocke
 module.exports = {
   enqueue, start, stop, tick, cancel, resume, retry, recoverAbandonedRuns,
   buildRuntimeInstruction, completionStatus, isLikelyChatOnlyObjective,
+  isFastStatusObjective,
   buildChatOnlyPayload, buildAgentPayload
 };

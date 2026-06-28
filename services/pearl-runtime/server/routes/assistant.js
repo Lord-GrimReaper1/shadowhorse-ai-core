@@ -120,6 +120,64 @@ function buildAssetInventoryInstruction() {
   ].join('\n');
 }
 
+function isFastStatusPrompt(prompt = '') {
+  if (!prompt || typeof prompt !== 'string') {
+    return false;
+  }
+
+  const lower = prompt.toLowerCase();
+  const gitStatusCue =
+    (lower.includes('commit') || lower.includes('branch') || lower.includes('git') || lower.includes('github') || lower.includes('sync')) &&
+    (lower.includes('local') || lower.includes('remote') || lower.includes('already in') || lower.includes('already on') ||
+      lower.includes('ahead') || lower.includes('behind') || lower.includes('up to date') || lower.includes('pushed') ||
+      lower.includes('pulled') || lower.includes('status') || lower.includes('list'));
+
+  const networkCue =
+    (lower.includes('network') || lower.includes('internet') || lower.includes('web search') || lower.includes('reach github') ||
+      lower.includes('connectivity')) &&
+    (lower.includes('can') || lower.includes('check') || lower.includes('does') || lower.includes('status'));
+
+  return gitStatusCue || networkCue;
+}
+
+function isWebResearchPrompt(prompt = '') {
+  if (!prompt || typeof prompt !== 'string') {
+    return false;
+  }
+
+  const lower = prompt.toLowerCase();
+  const currentCue = lower.includes('latest') || lower.includes('current') || lower.includes('newest') ||
+    lower.includes('recent') || lower.includes('trend') || lower.includes('trends') ||
+    lower.includes('modern') || lower.includes('2026') || lower.includes('today');
+  const researchCue = lower.includes('research') || lower.includes('look up') || lower.includes('search') ||
+    lower.includes('find out') || lower.includes('compare') || lower.includes('best');
+  const outsideDomainCue = lower.includes('api') || lower.includes('unity') || lower.includes('unreal') ||
+    lower.includes('design style') || lower.includes('coding pattern') || lower.includes('tool') ||
+    lower.includes('package') || lower.includes('documentation');
+
+  return (currentCue && outsideDomainCue) || researchCue;
+}
+
+function buildToolRoutingInstruction({ fastStatusMode, webResearchMode } = {}) {
+  const lines = [
+    'Tool routing rules:',
+    '- Use pearl_git_status for branch, commit, sync, ahead/behind, local-vs-GitHub, or "is this commit local" questions. For GitHub freshness, set fetch_remote true.',
+    '- Use pearl_network_diagnostics for internet, GitHub reachability, provider configuration, or connectivity questions.',
+    '- Use pearl_web_search for current external information, recent trends, modern API docs, tool comparisons, and other facts likely to have changed.',
+    '- Use pearl_read_web_page only after a search result or explicit URL is relevant, and cite the page URL in the answer.',
+    '- For quick status questions, use the specific status tool first and answer directly. Do not search the whole repo unless the user asks for code or file evidence.'
+  ];
+
+  if (fastStatusMode) {
+    lines.push('This turn appears to be a quick status/capability check. Prefer one targeted tool call and a short direct answer.');
+  }
+  if (webResearchMode) {
+    lines.push('This turn appears to need current outside information. Search the web if a provider is configured; if not configured, say what key/provider is missing.');
+  }
+
+  return lines.join('\n');
+}
+
 function hasDecisionSupportField(text, label) {
   if (!text || typeof text !== 'string') {
     return false;
@@ -296,6 +354,8 @@ const handleChat = async (req, res) => {
     const enableAgentMode = enable_agent_mode === true;
     const decisionSupportMode = isDecisionSupportPrompt(trimmedPrompt);
     const assetInventoryMode = isAssetInventoryPrompt(trimmedPrompt);
+    const fastStatusMode = enableAgentMode && isFastStatusPrompt(trimmedPrompt);
+    const webResearchMode = enableAgentMode && isWebResearchPrompt(trimmedPrompt);
     const convId = conversation_id || uuidv4();
     const risk = policyGuardrails.classifyPromptRisk(trimmedPrompt);
     const safeModeEnabled = String(process.env.PEARL_SAFE_MODE || 'false').toLowerCase() === 'true';
@@ -376,6 +436,7 @@ const handleChat = async (req, res) => {
     const systemMessages = [
       { role: 'system', content: PEARL_SYSTEM_PROMPT },
       ...(repoContext ? [{ role: 'system', content: repoContext.contextText }] : []),
+      ...(enableAgentMode ? [{ role: 'system', content: buildToolRoutingInstruction({ fastStatusMode, webResearchMode }) }] : []),
       ...(assetInventoryMode ? [{ role: 'system', content: buildAssetInventoryInstruction() }] : []),
       ...(decisionSupportMode ? [{ role: 'system', content: buildDecisionSupportInstruction(repoContext) }] : [])
     ];
@@ -400,7 +461,7 @@ const handleChat = async (req, res) => {
           for (const toolCall of choice.message.tool_calls) {
             let toolArgs = {};
             try { toolArgs = JSON.parse(toolCall.function.arguments); } catch (_e) {}
-            const toolResult = agentTools.executeTool(toolCall.function.name, toolArgs, { conversationId: convId });
+            const toolResult = await Promise.resolve(agentTools.executeTool(toolCall.function.name, toolArgs, { conversationId: convId }));
             agentMessages.push({ role: 'tool', tool_call_id: toolCall.id, content: JSON.stringify(toolResult) });
             agentSteps.push({ iteration: iteration + 1, tool: toolCall.function.name, result_keys: Object.keys(toolResult) });
           }

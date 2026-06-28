@@ -6,6 +6,7 @@ const PEARL_NAME_PATTERNS = [
   /\bperal\b/gi,
   /\bperl\b/gi,
   /\bpurl\b/gi,
+  /\bpearl\b/gi,
   /\bpearl's\b/gi,
 ];
 

@@ -1,6 +1,6 @@
 const HIGH_RISK_PROMPT_PATTERNS = [
   /delete|wipe|destroy|erase|drop\s+database/gi,
-  /disable|bypass|override\s+(safety|guardrails?|policy|policies|directives?)/gi,
+  /\b(?:disable|bypass|override)\b[^.!?\n]{0,40}\b(?:safety|guardrails?|policy|policies|directives?|prime directives?)\b/gi,
   /ignore\s+(all\s+)?(rules|directives|policies)/gi,
   /execute|run\s+.*\b(shell|powershell|cmd|terminal|script)\b/gi,
   /export|dump|exfiltrate\s+.*\b(data|secrets?|keys?)\b/gi
@@ -22,7 +22,7 @@ const DIRECTIVE_MUTATION_PATTERN = /\b(change|rewrite|modify|edit|alter|remove|d
 
 function removeDirectiveProtectionClauses(text) {
   return text.replace(
-    /\b(?:do not|don't|must not|may not|cannot|can't|not allowed to|without)\s+(?:change|rewrite|modify|edit|alter|remove|disable|ignore|override|bypass|circumvent|loosen|weaken)[^.!?]{0,80}\b(?:prime directives?|directives?|constitution|red lines?|safety guardrails?|approval safeguards?|core rules?)\b/gi,
+    /\b(?:do not|don't|must not|may not|cannot|can't|will not|won't|not allowed to|without)\s+(?:change|rewrite|modify|edit|alter|remove|disable|ignore|override|bypass|circumvent|loosen|weaken)(?:\s+or\s+(?:change|rewrite|modify|edit|alter|remove|disable|ignore|override|bypass|circumvent|loosen|weaken))*[^.!?\n]{0,100}\b(?:prime directives?|directives?|constitution|red lines?|safety guardrails?|approval safeguards?|core rules?)\b/gi,
     ''
   );
 }
@@ -78,10 +78,11 @@ function classifyMaintenanceIntent(prompt) {
 
 function classifyPromptRisk(prompt) {
   const reasons = [];
+  const riskCandidate = removeDirectiveProtectionClauses(String(prompt || ''));
 
   for (const pattern of HIGH_RISK_PROMPT_PATTERNS) {
     pattern.lastIndex = 0;
-    if (pattern.test(prompt)) {
+    if (pattern.test(riskCandidate)) {
       reasons.push(`matched:${pattern.source}`);
     }
   }

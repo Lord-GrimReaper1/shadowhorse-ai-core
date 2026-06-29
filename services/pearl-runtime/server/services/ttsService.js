@@ -14,7 +14,17 @@ async function synthesizeSpeech(text, packageId) {
   const pkg = resolvePackage(packageId);
 
   if (pkg.provider === 'elevenlabs') {
-    return synthesizeElevenLabs(text, pkg);
+    try {
+      return await synthesizeElevenLabs(text, pkg);
+    } catch (error) {
+      if (!pkg.fallback) {
+        throw error;
+      }
+
+      console.warn(`[voice/speak] ${pkg.name || packageId} failed; falling back to ${pkg.fallback}: ${error.message}`);
+      const fallbackPkg = resolvePackage(pkg.fallback);
+      return synthesizeOpenAI(text, fallbackPkg);
+    }
   }
   return synthesizeOpenAI(text, pkg);
 }

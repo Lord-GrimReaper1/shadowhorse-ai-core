@@ -109,6 +109,15 @@ test('runtime instructions require objective-specific repository and package evi
   assert.match(instruction, /Do not ask the human to restate work/i);
 });
 
+test('runtime instructions support steerable smart continuation', () => {
+  const instruction = runtime.buildRuntimeInstruction({ id: 'job-loop', objective: 'Investigate and fix Pearl runtime routing.' });
+  assert.match(instruction, /smart check loop/i);
+  assert.match(instruction, /another required task was uncovered/i);
+  assert.match(instruction, /newest human instruction as steering/i);
+  assert.match(instruction, /Do not stop at a plan/i);
+  assert.match(instruction, /stop before writes, commits, installs, destructive actions/i);
+});
+
 test('runtime instructions keep internal execution out of normal conversation', () => {
   const instruction = runtime.buildRuntimeInstruction({ id: 'job-quiet', objective: 'Tell me your prime directives.' });
   assert.match(instruction, /Keep all runtime mechanics private/i);

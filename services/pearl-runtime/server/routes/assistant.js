@@ -446,7 +446,8 @@ const handleChat = async (req, res) => {
 
     if (enableAgentMode) {
       const agentMessages = [...messages];
-      for (let iteration = 0; iteration < agentTools.MAX_AGENT_ITERATIONS; iteration++) {
+      const iterationLimit = fastStatusMode ? 2 : agentTools.MAX_AGENT_ITERATIONS;
+      for (let iteration = 0; iteration < iterationLimit; iteration++) {
         const iterResponse = await client.chat.completions.create({
           model: 'gpt-4o-mini',
           messages: [...systemMessages, ...agentMessages],

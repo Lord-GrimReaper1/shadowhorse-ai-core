@@ -16,7 +16,7 @@ const gitStatusService = require('./gitStatusService');
 const networkCapabilityService = require('./networkCapabilityService');
 const webSearchService = require('./webSearchService');
 
-const MAX_AGENT_ITERATIONS = 5;
+const MAX_AGENT_ITERATIONS = 8;
 const MAX_FILE_READ_CHARS = 16000;
 const ASSET_TOOL_MAX_SCAN_FILES = 2000;
 const ASSET_SEARCH_ROOTS = [

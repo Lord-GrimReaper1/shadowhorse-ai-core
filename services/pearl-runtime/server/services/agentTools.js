@@ -15,6 +15,7 @@ const repoContextService = require('./repoContextService');
 const gitStatusService = require('./gitStatusService');
 const networkCapabilityService = require('./networkCapabilityService');
 const webSearchService = require('./webSearchService');
+const comfyMediaService = require('./comfyMediaService');
 
 const MAX_AGENT_ITERATIONS = 8;
 const MAX_FILE_READ_CHARS = 16000;
@@ -394,6 +395,46 @@ const TOOL_DEFINITIONS = [
           max_chars: { type: 'number', description: 'Max text characters to return. Default 12000.' }
         },
         required: ['url']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'pearl_comfy_status',
+      description:
+        'Check Pearl media pipeline configuration and optionally probe the local ComfyUI API. ' +
+        'Use before planning ComfyUI, LTX, image, video, or workflow generation work.',
+      parameters: {
+        type: 'object',
+        properties: {
+          probe: {
+            type: 'boolean',
+            description: 'Whether to actively call the local ComfyUI /system_stats endpoint. Default false.'
+          },
+          timeout_ms: {
+            type: 'number',
+            description: 'Probe timeout in milliseconds. Default 3000.'
+          }
+        }
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'pearl_list_media_workflows',
+      description:
+        'List approved local ComfyUI workflow JSON files Pearl may use for image, video, render, or LTX work. ' +
+        'This does not run generation.',
+      parameters: {
+        type: 'object',
+        properties: {
+          category: {
+            type: 'string',
+            description: 'Optional workflow category, e.g. "image", "video/ltx", or "render".'
+          }
+        }
       }
     }
   },
@@ -948,6 +989,19 @@ function handleReadWebPage(args) {
   });
 }
 
+function handleComfyStatus(args) {
+  return comfyMediaService.status({
+    probe: args.probe === true,
+    timeoutMs: args.timeout_ms
+  });
+}
+
+function handleListMediaWorkflows(args) {
+  return comfyMediaService.listWorkflows({
+    category: args.category
+  });
+}
+
 // ─── Dispatcher ─────────────────────────────────────────────────────────────
 
 function executeTool(toolName, toolArgs, context = {}) {
@@ -962,6 +1016,8 @@ function executeTool(toolName, toolArgs, context = {}) {
     case 'pearl_network_diagnostics': return handleNetworkDiagnostics(args);
     case 'pearl_web_search': return handleWebSearch(args);
     case 'pearl_read_web_page': return handleReadWebPage(args);
+    case 'pearl_comfy_status': return handleComfyStatus(args);
+    case 'pearl_list_media_workflows': return handleListMediaWorkflows(args);
     case 'pearl_create_task': return handleCreateTask(args, conversationId);
     case 'pearl_complete_task': return handleCompleteTask(args, conversationId);
     case 'pearl_list_tasks':  return handleListTasks(args, conversationId);

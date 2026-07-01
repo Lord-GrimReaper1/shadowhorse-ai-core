@@ -165,6 +165,7 @@ function buildToolRoutingInstruction({ fastStatusMode, webResearchMode } = {}) {
     '- Use pearl_network_diagnostics for internet, GitHub reachability, provider configuration, or connectivity questions.',
     '- Use pearl_web_search for current external information, recent trends, modern API docs, tool comparisons, and other facts likely to have changed.',
     '- Use pearl_read_web_page only after a search result or explicit URL is relevant, and cite the page URL in the answer.',
+    '- Use pearl_comfy_status and pearl_list_media_workflows for ComfyUI, LTX, image generation, video generation, render workflow, and media pipeline questions.',
     '- For quick status questions, use the specific status tool first and answer directly. Do not search the whole repo unless the user asks for code or file evidence.'
   ];
 

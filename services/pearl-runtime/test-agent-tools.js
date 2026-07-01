@@ -200,6 +200,25 @@ test('Agent tools - web page reading stays disabled until explicitly enabled', a
   }
 });
 
+test('Agent tools - Comfy status reports scaffold without probing by default', async () => {
+  const result = await agentTools.executeTool('pearl_comfy_status', {}, { conversationId: 'test-comfy-status' });
+  assert.strictEqual(result.base_url, 'http://127.0.0.1:8188');
+  assert(result.workflows_dir.endsWith('media-workflows'), 'Expected default media-workflows directory');
+  assert.strictEqual(result.reachable, null);
+});
+
+test('Agent tools - media workflow listing is safe and scaffolded', () => {
+  const result = agentTools.executeTool('pearl_list_media_workflows', { category: 'video/ltx' }, { conversationId: 'test-comfy-workflows' });
+  assert(!result.error, 'Expected no error: ' + (result.error || ''));
+  assert.strictEqual(result.category, 'video/ltx');
+  assert(Array.isArray(result.workflows), 'Expected workflows array');
+});
+
+test('Agent tools - media workflow listing blocks traversal', () => {
+  const result = agentTools.executeTool('pearl_list_media_workflows', { category: '../../' }, { conversationId: 'test-comfy-traversal' });
+  assert(result.error, 'Expected traversal to be blocked');
+});
+
 test('Agent tools - task CRUD lifecycle', () => {
   const convId = 'task-test-' + Date.now();
 
